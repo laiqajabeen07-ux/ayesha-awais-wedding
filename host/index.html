@@ -86,6 +86,6 @@ $("#gen").addEventListener("submit",async e=>{e.preventDefault();const err=$("#g
  if(!events.length){err.textContent="Please choose at least one function.";err.hidden=false;return}
  let url;
  if(basic){url=base()+"?side="+side+"&events="+events.join(",")}
- else{try{const r=await fetch("/.netlify/functions/create-invite",{method:"POST",body:JSON.stringify({role,password,side,events})});if(!r.ok)throw 0;const j=await r.json();url=base()+"?i="+j.token}catch{err.textContent="Could not create the link. Check your connection and try again.";err.hidden=false;return}}
+ else{try{const r=await fetch("/.netlify/functions/create-invite",{method:"POST",body:JSON.stringify({role,password,side,events})});if(!r.ok)throw 0;const j=await r.json();url=base()+".netlify/functions/invite-preview?i="+encodeURIComponent(j.token)}catch{err.textContent="Could not create the link. Check your connection and try again.";err.hidden=false;return}}
  const ex=links.find(l=>l.url===url);if(ex){if(label)ex.label=label;links=[ex,...links.filter(l=>l!==ex)]}else links.unshift({label,side,events,url,basic});save();draw();document.querySelector("#list").firstChild.scrollIntoView({behavior:"smooth",block:"nearest"})});
 </script></body></html>
