@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+[functions]
+  directory = "netlify/functions"
+[[headers]]
+  for = "/host/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
