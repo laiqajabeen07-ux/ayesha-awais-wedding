@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Invitation Links · Host</title>
+<style>
+:root{--cream:#FFF8F0;--ivory:#F7F0E7;--maroon:#641C2D;--gold:#C4A477;--gold-text:#8A6A3A;--ink:#352B29;--ink-soft:#4A3B38;--line:#D9C8B0}
+*{box-sizing:border-box}body{margin:0;background:var(--ivory);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.55}
+main{max-width:42rem;margin:0 auto;padding:1.6rem 1rem 3rem}
+h1{font-weight:400;color:var(--maroon);font-size:1.9rem;margin:.2rem 0}.eyebrow{font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-text);margin:0}
+.card{background:var(--cream);border:1px solid var(--gold);border-radius:12px;padding:1.1rem;margin:1rem 0}
+label.l,legend{display:block;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:#6B4A3A;margin:0 0 .4rem;padding:0}
+fieldset{border:0;padding:0;margin:0 0 1rem}
+.opt{display:flex;gap:.6rem;align-items:center;padding:.65rem .8rem;margin:.35rem 0;border:1px solid var(--line);border-radius:10px;background:#fff;min-height:48px}
+.opt input{width:20px;height:20px;accent-color:var(--maroon)}.opt.off{opacity:.45;background:var(--ivory)}.opt small{display:block;color:var(--ink-soft)}
+input[type=text],input[type=password]{width:100%;font:inherit;padding:.75rem;border:1px solid var(--line);border-radius:10px;background:#fff;min-height:48px}
+button{font:inherit;cursor:pointer;border-radius:999px;border:1px solid var(--maroon);padding:.7rem 1.3rem;min-height:46px;background:var(--maroon);color:var(--cream)}
+button.ghost{background:transparent;color:var(--maroon)}.row{display:flex;gap:.5rem;flex-wrap:wrap}
+.msg{font-size:.92rem;color:var(--ink-soft)}.err{color:#8B1A1A}.warn{background:#fff3d6;border:1px solid #e0c36a;border-radius:10px;padding:.7rem .9rem;font-size:.9rem}
+.link{word-break:break-all;font-family:ui-monospace,Menlo,monospace;font-size:.82rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.5rem .6rem;margin:.5rem 0}
+.item h3{margin:.1rem 0;font-weight:600;font-size:1.02rem;color:var(--maroon)}[hidden]{display:none!important}
+</style></head><body><main>
+<p class="eyebrow">Private · Hosts only</p><h1>Invitation Links</h1>
+<p class="msg">Create one reusable link per group of guests. Guests who open it see only the functions you choose.</p>
+
+<details class="card" id="howto"><summary style="cursor:pointer;color:var(--maroon)">How this works (tap to read)</summary>
+<p class="msg"><b>You:</b> choose the family, tick the functions, press <i>Generate Invitation Link</i>, press <i>Copy Link</i> and send it on WhatsApp. One link can go to as many guests as you like.</p>
+<p class="msg"><b>Guests:</b> tap the link. The invitation opens and shows only the functions in that link. They never choose their side or functions. Their RSVP opens WhatsApp to the correct family's number.</p>
+<p class="msg">Make a new link only when the group needs a different set of functions.</p></details>
+
+<section class="card" id="login">
+  <fieldset><legend>Who is signing in?</legend>
+    <label class="opt"><input type="radio" name="role" value="bride" checked> Bride's account</label>
+    <label class="opt"><input type="radio" name="role" value="groom"> Groom's account</label></fieldset>
+  <label class="l" for="pw">Password</label><input id="pw" type="password" autocomplete="current-password">
+  <p class="msg err" id="login-err" hidden></p>
+  <div class="row" style="margin-top:.8rem"><button id="login-btn" type="button">Unlock</button></div>
+  <div id="basic-offer" hidden><p class="warn" style="margin-top:.8rem">The secure link service is not set up on this site yet. You can still use <b>basic links</b>, but guests can edit these in their browser's address bar, so they are not tamper-proof. See the README to turn on signed links.</p><button class="ghost" id="basic-btn" type="button">Use basic links</button></div>
+</section>
+
+<section id="app" hidden>
+  <p class="warn" id="basic-note" hidden><b>Basic mode.</b> These links work, but a guest could edit the address to reveal other functions. Set up the Netlify Functions (README) for signed links.</p>
+  <form class="card" id="gen">
+    <p class="msg" id="who"></p><button type="button" class="ghost" id="signout" style="min-height:38px;padding:.3rem 1rem">Sign out</button>
+    <fieldset id="side-box"><legend>1 · Inviting family</legend>
+      <label class="opt"><input type="radio" name="side" value="bride" checked> Bride's Family</label>
+      <label class="opt"><input type="radio" name="side" value="groom"> Groom's Family</label></fieldset>
+    <fieldset id="evs"><legend>2 · Functions to include</legend></fieldset>
+    <div><label class="l" for="label">3 · Label (only you see this)</label><input id="label" type="text" maxlength="80" placeholder="e.g. Bride Friends - Barat"></div>
+    <p class="msg err" id="gen-err" hidden></p>
+    <div class="row" style="margin-top:1rem"><button type="submit">Generate Invitation Link</button></div>
+  </form>
+  <h2 style="font-weight:400;color:var(--maroon)">Your links</h2>
+  <p class="msg" id="none">No links yet.</p><div id="list"></div>
+  <p class="msg">Your list is saved in this browser only. Copy important links somewhere safe.</p>
+</section>
+</main>
+<script>
+const EVENTS=[{id:"bride-mehndi",name:"Bride's Side Mehndi",date:"22 December 2026",side:"bride"},{id:"groom-mehndi",name:"Groom's Side Mehndi",date:"23 December 2026",side:"groom"},{id:"barat",name:"Barat",date:"24 December 2026"},{id:"walima",name:"Walima",date:"25 December 2026"}];
+const KEY=()=>"wedding-host-links-v2-"+role;
+let password="",basic=false,links=[],role="bride";
+const $=s=>document.querySelector(s);
+const sideOf=()=>role;
+function drawEvents(){const side=sideOf();$("#evs").innerHTML='<legend>2 · Functions to include</legend>'+EVENTS.map(e=>{const off=e.side&&e.side!==side;return `<label class="opt ${off?"off":""}"><input type="checkbox" value="${e.id}" ${off?"disabled":""}><span>${e.name}<small>${e.date}${off?" · not available for this family":""}</small></span></label>`}).join("")}
+document.querySelectorAll("input[name=side]").forEach(r=>r.addEventListener("change",drawEvents));
+const base=()=>location.origin+"/";
+function load(){try{links=JSON.parse(localStorage.getItem(KEY())||"[]")}catch{links=[]}}
+function save(){try{localStorage.setItem(KEY(),JSON.stringify(links))}catch{}}
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function draw(){$("#none").hidden=links.length>0;$("#list").innerHTML="";links.forEach((l,i)=>{const d=document.createElement("div");d.className="card item";
+ d.innerHTML=`<h3>${esc(l.label||"Untitled link")}</h3><div class="msg">${l.side==="bride"?"Bride's Family":"Groom's Family"} · ${l.events.map(id=>EVENTS.find(e=>e.id===id).name).join(" + ")}${l.basic?" · basic link":""}</div><div class="link">${esc(l.url)}</div><div class="row"><button class="ghost" data-a="copy">Copy Link</button><button class="ghost" data-a="prev">Preview Invitation</button><button class="ghost" data-a="frame">Show here</button><button class="ghost" data-a="del">Remove</button></div>`;
+ d.querySelector('[data-a=copy]').onclick=async e=>{try{await navigator.clipboard.writeText(l.url);e.target.textContent="Copied"}catch{prompt("Copy this link:",l.url)}setTimeout(()=>e.target.textContent="Copy Link",1600)};
+ d.querySelector('[data-a=prev]').onclick=()=>window.open(l.url,"_blank","noopener");
+ d.querySelector('[data-a=frame]').onclick=e=>{let f=d.querySelector("iframe");if(f){f.remove();e.target.textContent="Show here";return}f=document.createElement("iframe");f.src=l.url;f.title="Invitation preview";f.style.cssText="width:100%;height:560px;border:1px solid var(--line);border-radius:10px;margin-top:.7rem;background:#fff";d.appendChild(f);e.target.textContent="Hide preview"};
+ d.querySelector('[data-a=del]').onclick=()=>{links.splice(i,1);save();draw()};$("#list").appendChild(d)})}
+function unlock(){$("#login").hidden=true;$("#app").hidden=false;$("#basic-note").hidden=!basic;
+ const own=role==="admin"?"":" ("+(role==="bride"?"Bride's account":"Groom's account")+")";$("#who").textContent=role==="bride"?"Signed in as the Bride's account · Bride's Family links":"Signed in as the Groom's account · Groom's Family links";
+ document.querySelectorAll("#side-box").forEach(x=>x.hidden=true);
+ document.querySelector('input[name=side][value='+(role==="groom"?"groom":"bride")+']').checked=true;load();drawEvents();draw()}
+$("#login-btn").onclick=async()=>{const err=$("#login-err");err.hidden=true;try{const r=await fetch("/.netlify/functions/create-invite",{method:"POST",body:JSON.stringify({role:document.querySelector("input[name=role]:checked").value,password:$("#pw").value,check:true})});
+ if(r.ok){const j=await r.json();role=j.role;password=$("#pw").value;basic=false;unlock();return}
+ if(r.status===401){err.textContent="Incorrect password.";err.hidden=false;return}
+ $("#basic-offer").hidden=false;err.textContent="The secure link service is not available on this site (not set up yet).";err.hidden=false}catch{$("#basic-offer").hidden=false;err.textContent="Could not reach the secure link service.";err.hidden=false}};
+$("#pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("#login-btn").click()});
+$("#basic-btn").onclick=()=>{basic=true;role=document.querySelector("input[name=role]:checked").value;unlock()};
+$("#signout").onclick=()=>{password="";$("#pw").value="";$("#app").hidden=true;$("#login").hidden=false};
+$("#gen").addEventListener("submit",async e=>{e.preventDefault();const err=$("#gen-err");err.hidden=true;const side=sideOf(),events=[...document.querySelectorAll("#evs input:checked")].map(i=>i.value),label=$("#label").value.trim();
+ if(!events.length){err.textContent="Please choose at least one function.";err.hidden=false;return}
+ let url;
+ if(basic){url=base()+"?side="+side+"&events="+events.join(",")}
+ else{try{const r=await fetch("/.netlify/functions/create-invite",{method:"POST",body:JSON.stringify({role,password,side,events})});if(!r.ok)throw 0;const j=await r.json();url=base()+"?i="+j.token}catch{err.textContent="Could not create the link. Check your connection and try again.";err.hidden=false;return}}
+ const ex=links.find(l=>l.url===url);if(ex){if(label)ex.label=label;links=[ex,...links.filter(l=>l!==ex)]}else links.unshift({label,side,events,url,basic});save();draw();document.querySelector("#list").firstChild.scrollIntoView({behavior:"smooth",block:"nearest"})});
+</script></body></html>
