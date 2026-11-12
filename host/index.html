@@ -62,7 +62,22 @@ const sideOf=()=>role;
 function drawEvents(){const side=sideOf();$("#evs").innerHTML='<legend>2 · Functions to include</legend>'+EVENTS.map(e=>{const off=e.side&&e.side!==side;return `<label class="opt ${off?"off":""}"><input type="checkbox" value="${e.id}" ${off?"disabled":""}><span>${e.name}<small>${e.date}${off?" · not available for this family":""}</small></span></label>`}).join("")}
 document.querySelectorAll("input[name=side]").forEach(r=>r.addEventListener("change",drawEvents));
 const base=()=>location.origin+"/";
-function load(){try{links=JSON.parse(localStorage.getItem(KEY())||"[]")}catch{links=[]}}
+function previewUrl(url){
+ try{
+  const u=new URL(url,location.origin), token=u.searchParams.get("i");
+  if(token&&/^[bg]\\d{1,2}-[0-9a-f]{12}$/.test(token))
+   return location.origin+"/.netlify/functions/invite-preview?i="+encodeURIComponent(token);
+ }catch{}
+ return url;
+}
+function load(){
+ try{
+  links=JSON.parse(localStorage.getItem(KEY())||"[]");
+  let changed=false;
+  links.forEach(l=>{const next=previewUrl(l.url);if(next!==l.url){l.url=next;changed=true}});
+  if(changed)save();
+ }catch{links=[]}
+}
 function save(){try{localStorage.setItem(KEY(),JSON.stringify(links))}catch{}}
 function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function draw(){$("#none").hidden=links.length>0;$("#list").innerHTML="";links.forEach((l,i)=>{const d=document.createElement("div");d.className="card item";
